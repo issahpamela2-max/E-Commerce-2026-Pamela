@@ -13,8 +13,9 @@
     <div class="nav">
         <a href="<?php echo BASE_URL; ?>/index.php">Home</a>
 
-        <?php if (is_admin()): ?>
-            <a href="<?php echo BASE_URL; ?>/views/admin/brand.php">Admin</a>
+       <?php if (is_logged_in() && is_admin()): ?>
+            <a href="<?php echo BASE_URL; ?>/views/admin/brand.php">Brands</a>
+            <a href="<?php echo BASE_URL; ?>/views/admin/category.php">Categories</a>
         <?php endif; ?>
 
         <?php if (is_logged_in()): ?>

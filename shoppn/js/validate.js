@@ -95,4 +95,36 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
+
+    // ---- Brand form ----
+    const brandForm = document.getElementById('brand-form');
+
+    if (brandForm) {
+        brandForm.addEventListener('submit', function (e) {
+            clearErrors();
+
+            const name = document.getElementById('brand_name').value.trim();
+
+            if (name.length < 1 || name.length > 100) {
+                showError('brand_name-error', 'Brand name is required, max 100 characters.');
+                e.preventDefault();
+            }
+        });
+    }
+
+    // ---- Category form ----
+    const categoryForm = document.getElementById('category-form');
+
+    if (categoryForm) {
+        categoryForm.addEventListener('submit', function (e) {
+            clearErrors();
+
+            const name = document.getElementById('cat_name').value.trim();
+
+            if (name.length < 1 || name.length > 100) {
+                showError('cat_name-error', 'Category name is required, max 100 characters.');
+                e.preventDefault();
+            }
+        });
+    }
 });

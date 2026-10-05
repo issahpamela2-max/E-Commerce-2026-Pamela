@@ -13,6 +13,11 @@ body {
 
 .header h1 { margin: 0 0 10px 0; }
 
+.nav {
+    display: flex;
+    align-items: center;
+}
+
 .nav a {
     color: #fff;
     text-decoration: none;
@@ -21,7 +26,10 @@ body {
 
 .nav a:hover { text-decoration: underline; }
 
-.nav span { margin-right: 15px; }
+.nav span {
+    margin-left: auto;
+    margin-right: 15px;
+}
 
 .container {
     max-width: 1000px;
@@ -52,7 +60,7 @@ form label {
     font-size: 14px;
 }
 
-form input, form select {
+form input, form select, form textarea {
     width: 100%;
     max-width: 400px;
     padding: 8px;
@@ -61,6 +69,8 @@ form input, form select {
     border-radius: 4px;
     box-sizing: border-box;
 }
+
+form textarea { height: 70px; }
 
 form button {
     margin-top: 18px;
@@ -80,6 +90,14 @@ form button {
     margin-bottom: 15px;
 }
 
+.success-box {
+    background: #d6f0dc;
+    color: #1c5c2e;
+    padding: 10px 14px;
+    border-radius: 4px;
+    margin-bottom: 15px;
+}
+
 .field-error {
     display: block;
     color: #c0392b;
@@ -87,12 +105,26 @@ form button {
     margin-top: 3px;
 }
 
-.nav {
-    display: flex;
-    align-items: center;
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
 }
 
-.nav span {
-    margin-left: auto;
-    margin-right: 15px;
+.data-table th, .data-table td {
+    border: 1px solid #ddd;
+    padding: 8px 10px;
+    text-align: left;
+    font-size: 14px;
+}
+
+.data-table th {
+    background: #1f3a5f;
+    color: #fff;
+}
+
+.cancel-link {
+    margin-left: 12px;
+    font-size: 14px;
+    color: #666;
 }
