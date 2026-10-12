@@ -13,9 +13,10 @@
     <div class="nav">
         <a href="<?php echo BASE_URL; ?>/index.php">Home</a>
 
-       <?php if (is_logged_in() && is_admin()): ?>
+        <?php if (is_logged_in() && is_admin()): ?>
             <a href="<?php echo BASE_URL; ?>/views/admin/brand.php">Brands</a>
             <a href="<?php echo BASE_URL; ?>/views/admin/category.php">Categories</a>
+            <a href="<?php echo BASE_URL; ?>/views/admin/product.php">Products</a>
         <?php endif; ?>
 
         <?php if (is_logged_in()): ?>
@@ -27,6 +28,12 @@
             <a href="<?php echo BASE_URL; ?>/views/login.php">Login</a>
         <?php endif; ?>
     </div>
+
+    <form class="search-bar" method="GET" action="<?php echo BASE_URL; ?>/views/search_results.php">
+        <input type="text" name="user_query" placeholder="Search products..."
+               value="<?php echo isset($_GET['user_query']) ? htmlspecialchars($_GET['user_query']) : ''; ?>">
+        <button type="submit">Search</button>
+    </form>
 </div>
 
 <div class="container">
