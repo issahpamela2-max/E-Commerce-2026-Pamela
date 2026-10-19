@@ -24,11 +24,51 @@ body {
     margin-right: 15px;
 }
 
-.nav a:hover { text-decoration: underline; }
-
-.nav span {
-    margin-left: auto;
+.nav > span {
     margin-right: 15px;
+}
+
+/* ---------- Right-hand group: account + cart ---------- */
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+}
+
+.nav-right span {
+    margin-right: 15px;
+}
+
+.cart-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-right: 0;
+}
+
+.cart-link span {
+    margin-right: 0;
+}
+
+.cart-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.cart-badge {
+    background: #e8841a;
+    color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 5px;
+    margin-left: 2px;
 }
 
 .search-bar {
@@ -336,4 +376,46 @@ form input[type="file"] {
     margin: 30px 0 20px 0;
     border: none;
     border-top: 1px solid #ddd;
+}
+
+/* ---------- Cart page ---------- */
+
+.cart-table .cart-product {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.cart-table .cart-product a {
+    color: #1f3a5f;
+    text-decoration: none;
+}
+
+.qty-input {
+    width: 70px;
+    max-width: 70px;
+    margin: 0;
+    padding: 6px;
+}
+
+.total-row td {
+    background: #f4f6f8;
+    font-size: 15px;
+}
+
+.cart-actions {
+    margin-top: 18px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.cart-actions button,
+.cart-actions .btn {
+    margin-top: 0;
+}
+
+.btn-secondary {
+    background: #8a1c1c;
 }

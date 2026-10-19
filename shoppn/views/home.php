@@ -45,7 +45,7 @@ if ($cat_id > 0) {
 
                     <div class="card-actions">
                         <a href="<?php echo BASE_URL; ?>/views/single_product.php?pro_id=<?php echo $p['product_id']; ?>">Details</a>
-                        <a href="<?php echo BASE_URL; ?>/index.php?add_cart=<?php echo $p['product_id']; ?>">Add to Cart</a>
+                        <a href="<?php echo BASE_URL; ?>/actions/add_to_cart_action.php?add_cart=<?php echo $p['product_id']; ?>">Add to Cart</a>
                     </div>
                 </div>
                 <?php endforeach; ?>

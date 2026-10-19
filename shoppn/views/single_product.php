@@ -23,6 +23,16 @@ if (!$product) {
 
     <div class="main-content">
 
+        <?php if (isset($_SESSION['success'])): ?>
+            <div class="success-box"><?php echo htmlspecialchars($_SESSION['success']); ?></div>
+            <?php unset($_SESSION['success']); ?>
+        <?php endif; ?>
+
+        <?php if (isset($_SESSION['error'])): ?>
+            <div class="error-box"><?php echo htmlspecialchars($_SESSION['error']); ?></div>
+            <?php unset($_SESSION['error']); ?>
+        <?php endif; ?>
+
         <div class="product-detail">
 
             <?php if ($product['product_image']): ?>
@@ -59,7 +69,7 @@ if (!$product) {
                     </p>
                 <?php endif; ?>
 
-                <a class="btn" href="<?php echo BASE_URL; ?>/index.php?add_cart=<?php echo $product['product_id']; ?>">Add to Cart</a>
+                <a class="btn" href="<?php echo BASE_URL; ?>/actions/add_to_cart_action.php?add_cart=<?php echo $product['product_id']; ?>">Add to Cart</a>
             </div>
         </div>
 
