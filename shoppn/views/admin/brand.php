@@ -31,6 +31,7 @@ $brands = $controller->getAllBrands();
 
 <form id="brand-form" method="POST"
       action="<?php echo BASE_URL; ?>/actions/<?php echo $edit_brand ? 'update_brand_action.php' : 'add_brand_action.php'; ?>">
+    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
 
     <?php if ($edit_brand): ?>
         <input type="hidden" name="brand_id" value="<?php echo $edit_brand['brand_id']; ?>">
@@ -57,7 +58,8 @@ $brands = $controller->getAllBrands();
         <tr>
             <th>ID</th>
             <th>Brand Name</th>
-            <th>Action</th>
+            <th>Edit</th>
+            <th>Delete</th>
         </tr>
         <?php foreach ($brands as $b): ?>
         <tr>
@@ -65,6 +67,14 @@ $brands = $controller->getAllBrands();
             <td><?php echo htmlspecialchars($b['brand_name']); ?></td>
             <td>
                 <a href="<?php echo BASE_URL; ?>/views/admin/brand.php?edit_id=<?php echo $b['brand_id']; ?>">Edit</a>
+            </td>
+            <td>
+                <form class="inline-form" method="POST" action="<?php echo BASE_URL; ?>/actions/delete_brand_action.php"
+                      onsubmit="return confirm('Delete this brand? This cannot be undone.');">
+                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                    <input type="hidden" name="del_id" value="<?php echo intval($b['brand_id']); ?>">
+                    <button type="submit" class="delete-link">Delete</button>
+                </form>
             </td>
         </tr>
         <?php endforeach; ?>

@@ -7,6 +7,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     redirect(BASE_URL . '/views/account/my_account.php');
 }
 
+if (!is_valid_csrf_token($_POST['csrf_token'] ?? null)) {
+    $_SESSION['error'] = 'Your request could not be verified. Please refresh the page and try again.';
+    redirect(BASE_URL . '/views/account/my_account.php');
+}
+
 $id = $_SESSION['customer_id'];
 
 $name    = trim(strip_tags($_POST['name'] ?? ''));
@@ -22,8 +27,13 @@ if (strlen($name) < 2 || strlen($name) > 100) {
     $errors[] = 'Name must be between 2 and 100 characters.';
 }
 
-if ($country === '') { $errors[] = 'Please select a country.'; }
-if (strlen($city) < 2) { $errors[] = 'Please enter your city.'; }
+if ($country === '' || strlen($country) > 30) {
+    $errors[] = 'Country is required and must be 30 characters or fewer.';
+}
+
+if (strlen($city) < 2 || strlen($city) > 30) {
+    $errors[] = 'City must be between 2 and 30 characters.';
+}
 
 if (!preg_match('/^\+?[0-9]{9,14}$/', $contact)) {
     $errors[] = 'Enter a valid phone number, 9 to 14 digits, optionally starting with +.';

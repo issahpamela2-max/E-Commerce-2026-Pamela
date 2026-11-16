@@ -58,8 +58,12 @@ class ProductController {
         return $this->model->getProductById($id);
     }
 
-    public function getAllProducts() {
-        return $this->model->getAllProducts();
+    public function getAllProducts($limit = null, $offset = 0, $sort = 'title_asc') {
+        return $this->model->getAllProducts($limit, $offset, $sort);
+    }
+
+    public function countAllProducts() {
+        return $this->model->countAllProducts();
     }
 
     // ---------- CUSTOMER-FACING ----------
@@ -68,15 +72,41 @@ class ProductController {
         return $this->model->getFeaturedProducts($limit);
     }
 
-    public function getProductsByCategory($cat_id) {
-        return $this->model->getProductsByCategory($cat_id);
+    public function getProductsByCategory($cat_id, $limit = null, $offset = 0, $sort = 'title_asc') {
+        return $this->model->getProductsByCategory($cat_id, $limit, $offset, $sort);
     }
 
-    public function getProductsByBrand($brand_id) {
-        return $this->model->getProductsByBrand($brand_id);
+    public function getProductsByBrand($brand_id, $limit = null, $offset = 0, $sort = 'title_asc') {
+        return $this->model->getProductsByBrand($brand_id, $limit, $offset, $sort);
     }
 
-    public function searchProducts($query) {
-        return $this->model->searchProducts($query);
+    public function countProductsByCategory($cat_id) {
+        return $this->model->countProductsByCategory($cat_id);
+    }
+
+    public function countProductsByBrand($brand_id) {
+        return $this->model->countProductsByBrand($brand_id);
+    }
+
+    public function searchProducts($query, $limit = null, $offset = 0, $sort = 'title_asc') {
+        return $this->model->searchProducts($query, $limit, $offset, $sort);
+    }
+
+    public function countSearchProducts($query) {
+        return $this->model->countSearchProducts($query);
+    }
+
+    // ---------- DELETES ----------
+
+    public function deleteBrand($id) {
+        return $this->model->deleteBrand($id);
+    }
+
+    public function deleteCategory($id) {
+        return $this->model->deleteCategory($id);
+    }
+
+    public function deleteProduct($id) {
+        return $this->model->deleteProduct($id);
     }
 }

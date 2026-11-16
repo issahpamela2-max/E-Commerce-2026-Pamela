@@ -17,65 +17,60 @@ if (!$product) {
 ?>
 <?php include __DIR__ . '/layout/header.php'; ?>
 
-<div class="page-layout">
+<main class="main-content">
+    <?php if (isset($_SESSION['success'])): ?>
+        <div class="success-box"><?php echo htmlspecialchars($_SESSION['success']); ?></div>
+        <?php unset($_SESSION['success']); ?>
+    <?php endif; ?>
 
-    <?php include __DIR__ . '/layout/sidebar.php'; ?>
+    <?php if (isset($_SESSION['error'])): ?>
+        <div class="error-box"><?php echo htmlspecialchars($_SESSION['error']); ?></div>
+        <?php unset($_SESSION['error']); ?>
+    <?php endif; ?>
 
-    <div class="main-content">
-
-        <?php if (isset($_SESSION['success'])): ?>
-            <div class="success-box"><?php echo htmlspecialchars($_SESSION['success']); ?></div>
-            <?php unset($_SESSION['success']); ?>
+    <div class="product-detail">
+        <?php if ($product['product_image']): ?>
+            <img src="<?php echo BASE_URL; ?>/images/products/<?php echo htmlspecialchars($product['product_image']); ?>"
+                 alt="<?php echo htmlspecialchars($product['product_title']); ?>">
         <?php endif; ?>
 
-        <?php if (isset($_SESSION['error'])): ?>
-            <div class="error-box"><?php echo htmlspecialchars($_SESSION['error']); ?></div>
-            <?php unset($_SESSION['error']); ?>
-        <?php endif; ?>
+        <div class="product-detail-info">
+            <h2><?php echo htmlspecialchars($product['product_title']); ?></h2>
+            <p class="price">GHS <?php echo number_format($product['product_price'], 2); ?></p>
 
-        <div class="product-detail">
+            <p class="meta-line">
+                <strong>Category:</strong>
+                <a href="<?php echo BASE_URL; ?>/index.php?cat=<?php echo intval($product['product_cat']); ?>">
+                    <?php echo htmlspecialchars($product['cat_name']); ?>
+                </a>
+            </p>
 
-            <?php if ($product['product_image']): ?>
-                <img src="<?php echo BASE_URL; ?>/images/products/<?php echo htmlspecialchars($product['product_image']); ?>"
-                     alt="<?php echo htmlspecialchars($product['product_title']); ?>">
+            <p class="meta-line">
+                <strong>Brand:</strong>
+                <a href="<?php echo BASE_URL; ?>/index.php?brand=<?php echo intval($product['product_brand']); ?>">
+                    <?php echo htmlspecialchars($product['brand_name']); ?>
+                </a>
+            </p>
+
+            <?php if ($product['product_desc']): ?>
+                <p><?php echo nl2br(htmlspecialchars($product['product_desc'])); ?></p>
             <?php endif; ?>
 
-            <div class="product-detail-info">
-                <h2><?php echo htmlspecialchars($product['product_title']); ?></h2>
-
-                <p class="price">GHS <?php echo number_format($product['product_price'], 2); ?></p>
-
+            <?php if ($product['product_keywords']): ?>
                 <p class="meta-line">
-                    <strong>Category:</strong>
-                    <a href="<?php echo BASE_URL; ?>/index.php?cat=<?php echo $product['product_cat']; ?>">
-                        <?php echo htmlspecialchars($product['cat_name']); ?>
-                    </a>
+                    <strong>Keywords:</strong> <?php echo htmlspecialchars($product['product_keywords']); ?>
                 </p>
+            <?php endif; ?>
 
-                <p class="meta-line">
-                    <strong>Brand:</strong>
-                    <a href="<?php echo BASE_URL; ?>/index.php?brand=<?php echo $product['product_brand']; ?>">
-                        <?php echo htmlspecialchars($product['brand_name']); ?>
-                    </a>
-                </p>
-
-                <?php if ($product['product_desc']): ?>
-                    <p><?php echo nl2br(htmlspecialchars($product['product_desc'])); ?></p>
-                <?php endif; ?>
-
-                <?php if ($product['product_keywords']): ?>
-                    <p class="meta-line">
-                        <strong>Keywords:</strong> <?php echo htmlspecialchars($product['product_keywords']); ?>
-                    </p>
-                <?php endif; ?>
-
-                <a class="btn" href="<?php echo BASE_URL; ?>/actions/add_to_cart_action.php?add_cart=<?php echo $product['product_id']; ?>">Add to Cart</a>
-            </div>
+            <form method="POST" action="<?php echo BASE_URL; ?>/actions/add_to_cart_action.php">
+                <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                <input type="hidden" name="add_cart" value="<?php echo intval($product['product_id']); ?>">
+                <button type="submit" class="btn">Add to Cart</button>
+            </form>
         </div>
-
-        <a class="back-link" href="<?php echo BASE_URL; ?>/index.php">&larr; Back to products</a>
-
     </div>
-</div>
+
+    <a class="back-link" href="<?php echo BASE_URL; ?>/index.php">&larr; Back to products</a>
+</main>
 
 <?php include __DIR__ . '/layout/footer.php'; ?>

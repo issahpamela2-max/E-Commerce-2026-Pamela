@@ -15,6 +15,15 @@ if ($edit_id > 0) {
 $categories = $controller->getAllCategories();
 $brands     = $controller->getAllBrands();
 $products   = $controller->getAllProducts();
+$raw_search_query = $_GET['q'] ?? '';
+$search_query = is_string($raw_search_query) ? trim($raw_search_query) : '';
+$products = array_values(array_filter($products, function ($product) use ($search_query) {
+    if ($search_query === '') {
+        return true;
+    }
+    $searchable = $product['product_title'] . ' ' . $product['cat_name'] . ' ' . $product['brand_name'];
+    return stripos($searchable, $search_query) !== false;
+}));
 ?>
 <?php include __DIR__ . '/../layout/header.php'; ?>
 
@@ -38,6 +47,7 @@ $products   = $controller->getAllProducts();
 
 <form id="product-form" method="POST" enctype="multipart/form-data"
       action="<?php echo BASE_URL; ?>/actions/<?php echo $edit_product ? 'update_product_action.php' : 'add_product_action.php'; ?>">
+    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
 
     <?php if ($edit_product): ?>
         <input type="hidden" name="product_id" value="<?php echo $edit_product['product_id']; ?>">
@@ -113,8 +123,16 @@ $products   = $controller->getAllProducts();
 
 <h3>All Products</h3>
 
+<form class="admin-filters" method="GET">
+    <label for="product-search">Search products</label>
+    <input id="product-search" type="search" name="q" value="<?php echo htmlspecialchars($search_query, ENT_QUOTES, 'UTF-8'); ?>"
+           placeholder="Title, category or brand">
+    <button type="submit">Search</button>
+    <a href="<?php echo BASE_URL; ?>/views/admin/product.php">Clear</a>
+</form>
+
 <?php if (empty($products)): ?>
-    <p>No products yet.</p>
+    <p><?php echo $search_query === '' ? 'No products yet.' : 'No products match your search.'; ?></p>
 <?php else: ?>
     <table class="data-table">
         <tr>
@@ -123,7 +141,8 @@ $products   = $controller->getAllProducts();
             <th>Category</th>
             <th>Brand</th>
             <th>Price</th>
-            <th>Action</th>
+            <th>Edit</th>
+            <th>Delete</th>
         </tr>
         <?php foreach ($products as $p): ?>
         <tr>
@@ -140,6 +159,14 @@ $products   = $controller->getAllProducts();
             <td>GHS <?php echo number_format($p['product_price'], 2); ?></td>
             <td>
                 <a href="<?php echo BASE_URL; ?>/views/admin/product.php?edit_id=<?php echo $p['product_id']; ?>">Edit</a>
+            </td>
+            <td>
+                <form class="inline-form" method="POST" action="<?php echo BASE_URL; ?>/actions/delete_product_action.php"
+                      onsubmit="return confirm('Delete this product? This cannot be undone.');">
+                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                    <input type="hidden" name="del_id" value="<?php echo intval($p['product_id']); ?>">
+                    <button type="submit" class="delete-link">Delete</button>
+                </form>
             </td>
         </tr>
         <?php endforeach; ?>

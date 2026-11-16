@@ -9,6 +9,7 @@
 <?php endif; ?>
 
 <form id="login-form" method="POST" action="<?php echo BASE_URL; ?>/actions/login_action.php">
+    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
 
     <label>Email</label>
     <input type="text" name="email" id="login-email">

@@ -3,10 +3,11 @@ require_once __DIR__ . '/../core/core.php';
 require_once __DIR__ . '/../controllers/CartController.php';
 
 $ip = get_ip();
+$customer_id = get_cart_customer_id();
 
 $controller = new CartController();
-$items = $controller->getCartItems($ip);
-$total = $controller->getCartTotal($ip);
+$items = $controller->getCartItems($ip, $customer_id);
+$total = $controller->getCartTotal($ip, $customer_id);
 ?>
 <?php include __DIR__ . '/layout/header.php'; ?>
 
@@ -30,6 +31,7 @@ $total = $controller->getCartTotal($ip);
 <?php else: ?>
 
     <form method="POST" id="cart-form" action="<?php echo BASE_URL; ?>/actions/update_qty_action.php">
+        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
 
         <table class="data-table cart-table">
             <tr>
@@ -79,11 +81,13 @@ $total = $controller->getCartTotal($ip);
             <button type="submit">Update Quantity</button>
             <button type="submit" form="remove-form" class="btn-secondary">Remove from Cart</button>
             <a class="btn" href="<?php echo BASE_URL; ?>/index.php">Continue Shopping</a>
-            <a class="btn" href="<?php echo BASE_URL; ?>/views/checkout.php">Checkout</a>
+            <a class="btn" href="<?php echo BASE_URL; ?>/views/payment.php">Checkout</a>
         </div>
     </form>
 
-    <form method="POST" id="remove-form" action="<?php echo BASE_URL; ?>/actions/remove_from_cart_action.php"></form>
+    <form method="POST" id="remove-form" action="<?php echo BASE_URL; ?>/actions/remove_from_cart_action.php">
+        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+    </form>
 
 <?php endif; ?>
 

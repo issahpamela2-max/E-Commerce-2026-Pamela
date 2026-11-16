@@ -91,4 +91,23 @@ class CustomerClass extends Database {
         $stmt->close();
         return $ok;
     }
+
+    public function countCustomers() {
+        $row = $this->conn->query("SELECT COUNT(*) AS cnt FROM customer")->fetch_assoc();
+        return $row ? intval($row['cnt']) : 0;
+    }
+
+    public function getAllCustomers() {
+        $result = $this->conn->query(
+            "SELECT customer_id, customer_name, customer_email, customer_country, customer_city, customer_contact
+             FROM customer
+             ORDER BY customer_name ASC"
+        );
+
+        $customers = [];
+        while ($row = $result->fetch_assoc()) {
+            $customers[] = $row;
+        }
+        return $customers;
+    }
 }

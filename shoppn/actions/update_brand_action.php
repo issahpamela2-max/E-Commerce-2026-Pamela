@@ -7,6 +7,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     redirect(BASE_URL . '/views/admin/brand.php');
 }
 
+if (!is_valid_csrf_token($_POST['csrf_token'] ?? null)) {
+    $_SESSION['error'] = 'Your request could not be verified. Please try again.';
+    redirect(BASE_URL . '/views/admin/brand.php');
+}
+
 $id   = intval($_POST['brand_id'] ?? 0);
 $name = trim(strip_tags($_POST['brand_name'] ?? ''));
 

@@ -31,6 +31,7 @@ $categories = $controller->getAllCategories();
 
 <form id="category-form" method="POST"
       action="<?php echo BASE_URL; ?>/actions/<?php echo $edit_cat ? 'update_category_action.php' : 'add_category_action.php'; ?>">
+    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
 
     <?php if ($edit_cat): ?>
         <input type="hidden" name="cat_id" value="<?php echo $edit_cat['cat_id']; ?>">
@@ -57,7 +58,8 @@ $categories = $controller->getAllCategories();
         <tr>
             <th>ID</th>
             <th>Category Name</th>
-            <th>Action</th>
+            <th>Edit</th>
+            <th>Delete</th>
         </tr>
         <?php foreach ($categories as $c): ?>
         <tr>
@@ -65,6 +67,14 @@ $categories = $controller->getAllCategories();
             <td><?php echo htmlspecialchars($c['cat_name']); ?></td>
             <td>
                 <a href="<?php echo BASE_URL; ?>/views/admin/category.php?edit_id=<?php echo $c['cat_id']; ?>">Edit</a>
+            </td>
+            <td>
+                <form class="inline-form" method="POST" action="<?php echo BASE_URL; ?>/actions/delete_category_action.php"
+                      onsubmit="return confirm('Delete this category? This cannot be undone.');">
+                    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+                    <input type="hidden" name="del_id" value="<?php echo intval($c['cat_id']); ?>">
+                    <button type="submit" class="delete-link">Delete</button>
+                </form>
             </td>
         </tr>
         <?php endforeach; ?>

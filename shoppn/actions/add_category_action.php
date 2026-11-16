@@ -7,6 +7,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     redirect(BASE_URL . '/views/admin/category.php');
 }
 
+if (!is_valid_csrf_token($_POST['csrf_token'] ?? null)) {
+    $_SESSION['error'] = 'Your request could not be verified. Please try again.';
+    redirect(BASE_URL . '/views/admin/category.php');
+}
+
 $name = trim(strip_tags($_POST['cat_name'] ?? ''));
 
 if ($name === '' || strlen($name) > 100) {

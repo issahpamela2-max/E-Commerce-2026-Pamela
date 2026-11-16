@@ -65,4 +65,12 @@ class CustomerController {
 
         return ['success' => false, 'error' => 'Could not change password. Please try again.'];
     }
+
+    public function countCustomers() {
+        return $this->model->countCustomers();
+    }
+
+    public function getAllCustomers() {
+        return $this->model->getAllCustomers();
+    }
 }

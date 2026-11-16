@@ -12,10 +12,14 @@ if (!$customer) {
 }
 
 $countries = ['Ghana', 'Nigeria', 'Kenya', 'South Africa', 'Other'];
+if (!in_array($customer['customer_country'], $countries, true)) {
+    array_unshift($countries, $customer['customer_country']);
+}
 ?>
 <?php include __DIR__ . '/../layout/header.php'; ?>
 
 <h2>My Account</h2>
+<p class="account-intro">Update your contact details and manage your sign-in password here.</p>
 
 <?php if (isset($_SESSION['success'])): ?>
     <div class="success-box"><?php echo htmlspecialchars($_SESSION['success']); ?></div>
@@ -27,41 +31,72 @@ $countries = ['Ghana', 'Nigeria', 'Kenya', 'South Africa', 'Other'];
     <?php unset($_SESSION['error']); ?>
 <?php endif; ?>
 
-<h3>Your Details</h3>
+<nav class="account-shortcuts" aria-label="Account settings">
+    <a href="#profile-details">Profile Details</a>
+    <a href="#password-settings">Password &amp; Security</a>
+</nav>
 
-<form id="profile-form" method="POST" action="<?php echo BASE_URL; ?>/actions/update_profile_action.php">
+<section class="account-panel" id="profile-details">
+    <h3>Profile Details</h3>
 
-    <label>Full Name</label>
-    <input type="text" name="name" id="profile-name" maxlength="100"
-           value="<?php echo htmlspecialchars($customer['customer_name']); ?>">
-    <span class="field-error" id="profile-name-error"></span>
+    <form id="profile-form" method="POST" action="<?php echo BASE_URL; ?>/actions/update_profile_action.php">
+        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
 
-    <label>Email</label>
-    <input type="text" value="<?php echo htmlspecialchars($customer['customer_email']); ?>" disabled>
+        <label>Full Name</label>
+        <input type="text" name="name" id="profile-name" maxlength="100" required
+               value="<?php echo htmlspecialchars($customer['customer_name']); ?>">
+        <span class="field-error" id="profile-name-error"></span>
 
-    <label>Country</label>
-    <select name="country" id="profile-country">
-        <option value="">-- Select --</option>
-        <?php foreach ($countries as $c): ?>
-            <option value="<?php echo $c; ?>" <?php echo $customer['customer_country'] === $c ? 'selected' : ''; ?>>
-                <?php echo $c; ?>
-            </option>
-        <?php endforeach; ?>
-    </select>
-    <span class="field-error" id="profile-country-error"></span>
+        <label>Email</label>
+        <input type="email" value="<?php echo htmlspecialchars($customer['customer_email']); ?>" disabled>
 
-    <label>City</label>
-    <input type="text" name="city" id="profile-city"
-           value="<?php echo htmlspecialchars($customer['customer_city']); ?>">
-    <span class="field-error" id="profile-city-error"></span>
+        <label>Country</label>
+        <select name="country" id="profile-country" required>
+            <option value="">-- Select --</option>
+            <?php foreach ($countries as $c): ?>
+                <option value="<?php echo htmlspecialchars($c); ?>" <?php echo $customer['customer_country'] === $c ? 'selected' : ''; ?>>
+                    <?php echo htmlspecialchars($c); ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <span class="field-error" id="profile-country-error"></span>
 
-    <label>Contact Number</label>
-    <input type="text" name="contact" id="profile-contact" maxlength="15"
-           value="<?php echo htmlspecialchars($customer['customer_contact']); ?>">
-    <span class="field-error" id="profile-contact-error"></span>
+        <label>City</label>
+        <input type="text" name="city" id="profile-city" maxlength="30" required
+               value="<?php echo htmlspecialchars($customer['customer_city']); ?>">
+        <span class="field-error" id="profile-city-error"></span>
 
-    <button type="submit">Update Details</button>
-</form>
+        <label>Contact Number</label>
+        <input type="text" name="contact" id="profile-contact" maxlength="15" required
+               value="<?php echo htmlspecialchars($customer['customer_contact']); ?>">
+        <span class="field-error" id="profile-contact-error"></span>
+
+        <button type="submit">Update Details</button>
+    </form>
+</section>
+
+<section class="account-panel" id="password-settings">
+    <h3>Password &amp; Security</h3>
+    <p class="help-text">Use your current password to set a new password for this account.</p>
+
+    <form id="password-form" method="POST" action="<?php echo BASE_URL; ?>/actions/update_password_action.php">
+        <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
+
+        <label>Current Password</label>
+        <input type="password" name="current_pass" id="current_pass" autocomplete="current-password" required>
+        <span class="field-error" id="current_pass-error"></span>
+
+        <label>New Password</label>
+        <input type="password" name="new_pass" id="new_pass" autocomplete="new-password" minlength="8" required>
+        <span class="field-error" id="new_pass-error"></span>
+
+        <label>Confirm New Password</label>
+        <input type="password" name="confirm_pass" id="confirm_pass" autocomplete="new-password" minlength="8" required>
+        <span class="field-error" id="confirm_pass-error"></span>
+
+        <button type="submit">Change Password</button>
+    </form>
+</section>
 
 <script src="<?php echo BASE_URL; ?>/js/validate.js"></script>
 

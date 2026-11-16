@@ -1,9 +1,15 @@
 <?php
 require_once __DIR__ . '/../core/core.php';
 require_once __DIR__ . '/../controllers/CustomerController.php';
+require_once __DIR__ . '/../controllers/CartController.php';
 
 // Only accept POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    redirect(BASE_URL . '/views/register.php');
+}
+
+if (!is_valid_csrf_token($_POST['csrf_token'] ?? null)) {
+    $_SESSION['error'] = 'Your request could not be verified. Please try again.';
     redirect(BASE_URL . '/views/register.php');
 }
 
@@ -34,8 +40,13 @@ if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/', $pa
     $errors[] = 'Password must be at least 8 characters with an uppercase letter, a lowercase letter, a number and a special character.';
 }
 
-if ($country === '') { $errors[] = 'Please select a country.'; }
-if ($city === '')    { $errors[] = 'Please enter your city.'; }
+if ($country === '' || strlen($country) > 30) {
+    $errors[] = 'Please select a country with 30 characters or fewer.';
+}
+
+if (strlen($city) < 2 || strlen($city) > 30) {
+    $errors[] = 'City must be between 2 and 30 characters.';
+}
 
 if (!preg_match('/^\+?[0-9]{9,14}$/', $contact)) {
     $errors[] = 'Enter a valid phone number, 9 to 14 digits, optionally starting with +.';
@@ -58,11 +69,16 @@ $result = $controller->register([
 ]);
 
 if ($result['success']) {
+    session_regenerate_id(true);
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
     $_SESSION['customer_id']    = $result['customer_id'];
     $_SESSION['customer_name']  = $name;
     $_SESSION['customer_email'] = $email;
     $_SESSION['user_role']      = 2;
-    redirect(BASE_URL . '/index.php');
+    if (!(new CartController())->mergeGuestCart(get_ip(), intval($result['customer_id']))) {
+        $_SESSION['error'] = 'Account created, but your guest cart could not be restored.';
+    }
+    redirect(BASE_URL . '/views/account/dashboard.php');
 } else {
     $_SESSION['error'] = $result['error'];
     redirect(BASE_URL . '/views/register.php');

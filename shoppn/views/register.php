@@ -9,9 +9,10 @@
 <?php endif; ?>
 
 <form id="register-form" method="POST" action="<?php echo BASE_URL; ?>/actions/register_action.php">
+    <input type="hidden" name="csrf_token" value="<?php echo csrf_token(); ?>">
 
     <label>Full Name</label>
-    <input type="text" name="name" id="name">
+    <input type="text" name="name" id="name" maxlength="100" required>
     <span class="field-error" id="name-error"></span>
 
     <label>Email</label>
@@ -23,7 +24,7 @@
     <span class="field-error" id="pass-error"></span>
 
     <label>Country</label>
-    <select name="country" id="country">
+    <select name="country" id="country" required>
         <option value="">-- Select --</option>
         <option value="Ghana">Ghana</option>
         <option value="Nigeria">Nigeria</option>
@@ -34,11 +35,11 @@
     <span class="field-error" id="country-error"></span>
 
     <label>City</label>
-    <input type="text" name="city" id="city">
+    <input type="text" name="city" id="city" maxlength="30" required>
     <span class="field-error" id="city-error"></span>
 
     <label>Contact Number</label>
-    <input type="text" name="contact" id="contact" maxlength="15">
+    <input type="text" name="contact" id="contact" maxlength="15" required>
     <span class="field-error" id="contact-error"></span>
 
     <button type="submit">Register</button>

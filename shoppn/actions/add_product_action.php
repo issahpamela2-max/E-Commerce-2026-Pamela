@@ -7,6 +7,11 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     redirect(BASE_URL . '/views/admin/product.php');
 }
 
+if (!is_valid_csrf_token($_POST['csrf_token'] ?? null)) {
+    $_SESSION['error'] = 'Your request could not be verified. Please try again.';
+    redirect(BASE_URL . '/views/admin/product.php');
+}
+
 $cat      = intval($_POST['product_cat'] ?? 0);
 $brand    = intval($_POST['product_brand'] ?? 0);
 $title    = trim(strip_tags($_POST['product_title'] ?? ''));
