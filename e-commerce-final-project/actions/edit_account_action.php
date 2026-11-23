@@ -1,0 +1,69 @@
+<?php
+
+require_once __DIR__ . '/../core/core.php';
+require_once __DIR__ . '/../core/validation.php';
+require_once __DIR__ . '/../controllers/CustomerController.php';
+
+/*
+ * Saves changes from views/account/edit_account.php. Customers only.
+ * Errors go back to that form; success goes to views/account/my_account.php.
+ */
+
+require_customer();
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    redirect(BASE_URL . 'views/account/edit_account.php');
+}
+
+$page = BASE_URL . 'views/account/edit_account.php';
+$customerId = get_customer_id();
+$controller = new CustomerController();
+$customer = $controller->getCustomer($customerId);
+
+if (!$customer) {
+    // No matching account means the session is stale; sign out rather than loop here.
+    cc_force_sign_out('We could not find your account. Please sign in again.');
+}
+
+$name = trim(preg_replace('/\s+/', ' ', (string) ($_POST['name'] ?? '')));
+$email = strtolower(trim((string) ($_POST['email'] ?? '')));
+$contact = (string) ($_POST['contact'] ?? '');
+$currentPassword = (string) ($_POST['current_password'] ?? '');
+
+$emailChanged = $email !== strtolower($customer['customer_email']);
+
+$errors = array_filter([
+    'name' => cc_check_name($name),
+    'email' => cc_check_email($email),
+    'contact' => cc_check_phone($contact),
+]);
+
+// Changing the email needs the password again, so an open session can't take over the address.
+if (!$errors && $emailChanged) {
+    if ($currentPassword === '' || !$controller->passwordMatches($customerId, $currentPassword)) {
+        $errors['current_password'] = 'Enter your current password to change your email address.';
+    } elseif ($controller->emailTaken($email, $customerId)) {
+        $errors['email'] = 'This email address cannot be used. Please use another one.';
+    }
+}
+
+if ($errors) {
+    cc_form_error('Please check the highlighted fields.', $errors, $page);
+}
+
+$saved = $controller->updateAccount($customerId, [
+    'name' => $name,
+    'email' => $email,
+    'city' => (string) ($customer['customer_city'] ?? ''),
+    'contact' => cc_normalise_phone($contact),
+]);
+
+if (!$saved) {
+    cc_form_error('We could not save your changes. Please try again.', [], $page);
+}
+
+// Keep the session in step with what was just saved.
+$_SESSION['customer_name'] = $name;
+$_SESSION['customer_email'] = $email;
+
+cc_form_success(BASE_URL . 'views/account/my_account.php', 'Your details have been saved.');
