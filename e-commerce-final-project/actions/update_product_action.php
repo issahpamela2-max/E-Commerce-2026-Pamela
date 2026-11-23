@@ -1,0 +1,196 @@
+
+<?php
+
+require_once __DIR__ . '/../core/core.php';
+require_once __DIR__ . '/../controllers/ProductController.php';
+
+/*
+ * Saves edits from views/admin/product_form.php. Admin only.
+ * Problems return to that form; a saved product returns to views/admin/product.php.
+ */
+
+require_admin();
+
+$listUrl = BASE_URL . 'views/admin/product.php';
+$formUrl = BASE_URL . 'views/admin/product_form.php';
+$redirectUrl = $listUrl;
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    redirect($redirectUrl);
+}
+
+$controller = new ProductController();
+
+$id = filter_var($_POST['product_id'] ?? '', FILTER_VALIDATE_INT);
+
+if ($id === false || $id <= 0) {
+    $_SESSION['error'] = 'Invalid product ID.';
+    redirect($redirectUrl);
+}
+
+$existingProduct = $controller->getProductById($id);
+
+if ($existingProduct === false) {
+    $_SESSION['error'] = 'Product not found.';
+    redirect($redirectUrl);
+}
+
+$cat = filter_var($_POST['product_cat'] ?? '', FILTER_VALIDATE_INT);
+$title = trim(strip_tags($_POST['product_title'] ?? ''));
+$priceInput = trim($_POST['product_price'] ?? '');
+$desc = trim(strip_tags($_POST['product_desc'] ?? ''));
+$keywords = trim(strip_tags($_POST['product_keywords'] ?? ''));
+
+if (
+    $cat === false || $cat <= 0 ||
+    $title === '' ||
+    !is_numeric($priceInput) ||
+    (float) $priceInput < 0 ||
+    $desc === '' ||
+    $keywords === ''
+) {
+    $_SESSION['error'] = 'Please complete all product fields correctly.';
+    redirect($formUrl . '?edit_id=' . $id);
+}
+
+$price = (float) $priceInput;
+
+if ($controller->getCategoryById($cat) === false) {
+    $_SESSION['error'] = 'Please select a valid category.';
+    redirect($formUrl . '?edit_id=' . $id);
+}
+
+// Read and validate selected product sizes.
+$submittedSizes = $_POST['product_sizes'] ?? [];
+
+if (!is_array($submittedSizes)) {
+    $_SESSION['error'] = 'Invalid product size selection.';
+    redirect($formUrl . '?edit_id=' . $id);
+}
+
+$availableSizes = $controller->getAllSizes();
+$validSizeIds = array_map(
+    'intval',
+    array_column($availableSizes, 'size_id')
+);
+
+$productSizes = [];
+
+foreach ($submittedSizes as $sizeId) {
+    $validatedSizeId = filter_var($sizeId, FILTER_VALIDATE_INT);
+
+    if (
+        $validatedSizeId === false ||
+        $validatedSizeId <= 0 ||
+        !in_array($validatedSizeId, $validSizeIds, true)
+    ) {
+        $_SESSION['error'] = 'Please select valid product sizes.';
+        redirect($formUrl . '?edit_id=' . $id);
+    }
+
+    $productSizes[] = $validatedSizeId;
+}
+
+$productSizes = array_values(array_unique($productSizes));
+
+// Keep the existing image unless a new one is uploaded.
+$filename = $existingProduct['product_image'];
+$newImagePath = null;
+
+if (
+    isset($_FILES['product_image']) &&
+    $_FILES['product_image']['error'] !== UPLOAD_ERR_NO_FILE
+) {
+    $file = $_FILES['product_image'];
+
+    if ($file['error'] !== UPLOAD_ERR_OK) {
+        $_SESSION['error'] = 'The new image could not be uploaded.';
+        redirect($formUrl . '?edit_id=' . $id);
+    }
+
+    $maxSize = 5 * 1024 * 1024;
+
+    if ($file['size'] <= 0 || $file['size'] > $maxSize) {
+        $_SESSION['error'] = 'The image must be smaller than 5 MB.';
+        redirect($formUrl . '?edit_id=' . $id);
+    }
+
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mimeType = $finfo->file($file['tmp_name']);
+
+    $allowedTypes = [
+        'image/jpeg' => 'jpg',
+        'image/png'  => 'png',
+        'image/gif'  => 'gif',
+        'image/webp' => 'webp'
+    ];
+
+    if (!isset($allowedTypes[$mimeType])) {
+        $_SESSION['error'] = 'Only JPEG, PNG, GIF, and WebP images are allowed.';
+        redirect($formUrl . '?edit_id=' . $id);
+    }
+
+    $filename = uniqid('product_', true) . '.' . $allowedTypes[$mimeType];
+
+    $uploadDirectory = __DIR__ . '/../images/products/';
+
+    if (
+        !is_dir($uploadDirectory) &&
+        !mkdir($uploadDirectory, 0755, true)
+    ) {
+        $_SESSION['error'] = 'Could not create the product image directory.';
+        redirect($formUrl . '?edit_id=' . $id);
+    }
+
+    $newImagePath = $uploadDirectory . $filename;
+
+    if (!move_uploaded_file($file['tmp_name'], $newImagePath)) {
+        $_SESSION['error'] = 'Could not save the new image.';
+        redirect($formUrl . '?edit_id=' . $id);
+    }
+}
+
+// Update the product together with its selected sizes.
+$result = $controller->updateProduct(
+    $id,
+    $cat,
+    $title,
+    $price,
+    $desc,
+    $filename,
+    $keywords,
+    $productSizes
+);
+
+if ($result) {
+    // Delete the previous image only after a successful database update.
+    if (
+        $newImagePath !== null &&
+        !empty($existingProduct['product_image'])
+    ) {
+        // basename keeps a stored path from pointing somewhere else on disk.
+        $oldImagePath = __DIR__ . '/../images/products/'
+            . basename($existingProduct['product_image']);
+
+        // Don't delete the file just uploaded if both paths resolve to it.
+        if (
+            is_file($oldImagePath) &&
+            realpath($oldImagePath) !== realpath($newImagePath)
+        ) {
+            unlink($oldImagePath);
+        }
+    }
+
+    // Stock levels come from the size fields on the same form.
+    $controller->saveStockFromForm($id, $productSizes, $_POST);
+    $_SESSION['success'] = 'Product updated successfully.';
+    redirect($redirectUrl);
+}
+
+// If the update failed, drop the new upload and keep the old image.
+if ($newImagePath !== null && is_file($newImagePath)) {
+    unlink($newImagePath);
+}
+
+$_SESSION['error'] = 'Failed to update the product.';
+redirect($formUrl . '?edit_id=' . $id);

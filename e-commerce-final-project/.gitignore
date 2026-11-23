@@ -1,0 +1,7 @@
+db_cred.php
+paystack_config.php
+
+
+.DS_Store
+mail_config.php
+error/*.log
